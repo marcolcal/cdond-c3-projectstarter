@@ -88,9 +88,12 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       # Your job code here
-      cd frontend
-      npm i
-      npm audit --audit-level=critical
+      - run:
+          name: scanning frontend
+          command: |
+            cd frontend
+            npm i
+            npm audit --audit-level=critical
 
   scan-backend:
     docker:
@@ -103,9 +106,12 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       # Your job code here
-      cd backend
-      npm i
-      npm audit --audit-level=critical
+      - run:
+          name: scanning backend
+          command: |
+            cd backend
+            npm i
+            npm audit --audit-level=critical
 
 workflows:
   default:
