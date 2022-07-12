@@ -10,6 +10,8 @@ Instructions for how to get a copy of the project running on your local machine.
 
 ### Starter Code
 
+
+#Adding a coomment here to link repo with remote
 Please watch the [video walkthrough of the starter code here](https://www.youtube.com/watch?v=ODLIAe28OJk).
 
 1. Clone the [starter code](https://github.com/udacity/cdond-c3-projectstarter) to your machine so that you can manipulate the files.
