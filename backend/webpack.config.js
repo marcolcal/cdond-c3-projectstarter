@@ -25,7 +25,7 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),x #remove it after is done
+    new webpack.HotModuleReplacementPlugin(),
   ],
   output: {
     path: path.join(__dirname, 'dist'),
