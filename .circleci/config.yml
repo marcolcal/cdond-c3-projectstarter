@@ -169,6 +169,11 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+
+      - run:
+          name: installing packages
+          command: |
+            yum -y install tar gzip git
       - run:
           name: Ensure back-end infrastructure exists
           command: |
