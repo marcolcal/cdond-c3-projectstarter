@@ -337,8 +337,9 @@ jobs:
             then
               #Database migration
               echo "Database Migration"
-              #curl -H "Content-Type: text/plain" -H "token: bc:c0:4a:33:15:8c:7f:e3:e0:79:3b:8d:bb:84:15:a1" --request PUT --data "success" https://kvdb.io/2797DDVfQqUVMSzD5WALik4Y/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
-              curl https://kvdb.io/2797DDVfQqUVMSzD5WALik4Y/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl -H "Content-Type: text/plain" -H "token: 9a:7c:96:eb:b8:6e:60:95:bb:de:99:9e:3a:20:1d:d4" --request PUT --data "success" https://kvdb.io/2797DDVfQqUVMSzD5WALik4Y/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
+            else
+              curl  -H "Content-Type: text/plain" -H "token: /JU3SmUKQouAF2xg/doHo76hqZUyZIfe8+Wv9yQc6nU" --request PUT --data "failure" https://kvdb.io/2797DDVfQqUVMSzD5WALik4Y/values/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
             #exit 1
       - slack/notify:
