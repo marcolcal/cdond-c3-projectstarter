@@ -222,25 +222,77 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure    
   configure-infrastructure:
+    docker:
+      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      - checkout
+      - restore_cache:
+        key: frontend-build
+      # Add ssh keys with fingerprint
+      - add_ssh_key:
+          fingerprint:
+          - "9a:7c:96:eb:b8:6e:60:95:bb:de:99:9e:3a:20:1d:d4"
+      # attach workspace
+      - attach_workspace:
+        at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            # Your code here
+            apk add --update ansible openssh-client tar gzip curl ansible
+            pip install awscli
+            #exit 1
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      - run:
+          name: Configure server
+          command: |
+            # Your code here
+            environment:
+            - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
+            - TYPEORM_ENTITIES: "{{ lookup('env', 'TYPEORM_ENTITIES')}}"
+            - TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST')}}"
+            - TYPEORM_PORT: 5432
+            - TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME')}}"
+            - TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD')}}"
+            - TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE')}}"
+            - TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
+            - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}
+            #exit 1
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      # Here's where you will add some code to rollback on failure     
+
+  run-migrations:
       docker:
-        # Docker image here that supports Ansible
+        # Docker image here that supports NodeJS
       steps:
         # Checkout code from git
-        # Add ssh keys with fingerprint
-        # attach workspace
         - run:
-            name: Install dependencies
+            name: Run migrations
             command: |
               # Your code here
-              exit 1
+              #exit 1
+        - slack/notify:
+            channel: udapeople
+            event: fail
+            template: basic_fail_1
         - run:
-            name: Configure server
+            name: Send migration results to memstash
             command: |
               # Your code here
-              exit 1
-        # Here's where you will add some code to rollback on failure     
-
-
+              #exit 1
+        - slack/notify:
+            channel: udapeople
+            event: fail
+            template: basic_fail_1
+      # Here's where you will add some code to rollback on failure      
 
 workflows:
   test-and-deploy:
