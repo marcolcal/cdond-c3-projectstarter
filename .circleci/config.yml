@@ -86,7 +86,29 @@ jobs:
         - slack/notify:
             channel: udapeople
             event: fail
+            template: basic_fail_1       
+        - save_cache:
+            key: build-backend
+            paths: [backend/node_modules ] 
+        - run:
+          name: Compiled code will be retrieved by deploy-backend.yml 
+          command: |
+            mkdir /tmp/workspace/
+            cp ./backend/package.json /tmp/workspace/
+            cd backend/dist
+            tar -zcvf /tmp/workspace/backend.tgz ./
+            tar -zcvf ./../../backend.tgz ./
+        - slack/notify:
+            channel: udapeople
+            event: fail
             template: basic_fail_1
+
+        - persist_to_workspace:
+            root: /tmp/workspace
+            paths:
+              - package.json
+              - backend.tar.gz 
+
 
   test-frontend:
       docker:
@@ -190,7 +212,7 @@ jobs:
       # Checkout code from git
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: [frontend-build]
 
       - run:
           name: installing packages
