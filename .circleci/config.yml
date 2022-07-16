@@ -91,13 +91,13 @@ jobs:
             key: build-backend
             paths: [backend/node_modules ] 
         - run:
-          name: Compiled code will be retrieved by deploy-backend.yml 
-          command: |
-            mkdir /tmp/workspace/
-            cp ./backend/package.json /tmp/workspace/
-            cd backend/dist
-            tar -zcvf /tmp/workspace/backend.tgz ./
-            tar -zcvf ./../../backend.tgz ./
+            name: Compiled code will be retrieved by deploy-backend.yml 
+            command: |
+              mkdir /tmp/workspace/
+              cp ./backend/package.json /tmp/workspace/
+              cd backend/dist
+              tar -zcvf /tmp/workspace/backend.tgz ./
+              tar -zcvf ./../../backend.tgz ./
         - slack/notify:
             channel: udapeople
             event: fail
