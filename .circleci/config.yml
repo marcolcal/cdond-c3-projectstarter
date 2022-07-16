@@ -231,9 +231,9 @@ jobs:
       # Checkout code from git
       - checkout
       - restore_cache:
-        key: frontend-build
+          key: frontend-build
       # Add ssh keys with fingerprint
-      - add_ssh_key:
+      - add_ssh_keys:
           fingerprint:
           - "9a:7c:96:eb:b8:6e:60:95:bb:de:99:9e:3a:20:1d:d4"
       # attach workspace
