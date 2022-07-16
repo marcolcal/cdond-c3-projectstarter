@@ -1,0 +1,47 @@
+Master username
+postgres
+Master password
+postgresCopy
+
+
+Endpoint & port
+Endpoint
+my-new-udapoeple-db.c2ohyzxsxers.us-east-1.rds.amazonaws.com
+Port
+5432
+
+
+DB instance ID
+database-1
+
+
+Resource ID
+db-G4GECRYNJY7XTITQI54DRXEBRU
+
+bucket-random  string
+udapeople-kk1j287dhjppmz437-marco
+
+
+
+###############
+newdb
+database name -> database_01
+port 5432
+DB instance identifier -> my-new-udapoeple-db
+Master username -> postgres
+password -> postgres
+Endpoint
+my-new-udapoeple-db.c2ohyzxsxers.us-east-1.rds.amazonaws.com
+
+
+################
+##s3 bucket
+#random String
+marco1j287dhjppmz437
+#s3 bucket name
+udapeople-marco1j287dhjppmz437
+
+
+############
+ssh key fonger print
+9a:7c:96:eb:b8:6e:60:95:bb:de:99:9e:3a:20:1d:d4
