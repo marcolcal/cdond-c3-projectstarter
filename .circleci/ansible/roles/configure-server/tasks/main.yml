@@ -9,3 +9,17 @@
 - name: Install Python
   raw: apt -y update && apt install -y python3
   when: check_python.rc != 0
+
+
+- name: Installing NPM
+  apt:
+    name: "{{ item }}"
+    state: latest
+  loop: ['npm', 'nodejs']
+
+- name: Installing pm2
+  npm: 
+    name: pm2
+    state: present
+    global: true
+    production: true 
