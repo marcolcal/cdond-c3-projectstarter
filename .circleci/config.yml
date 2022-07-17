@@ -298,7 +298,7 @@ jobs:
           name: Configure server
           command: |
             # Your code here
-            cd .cicleci/ansible
+            cd .circleci/ansible
             ansible-playbook -inventory configure-server.yml
             #exit 1
       - slack/notify:
