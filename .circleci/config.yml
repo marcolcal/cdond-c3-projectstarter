@@ -37,7 +37,7 @@ commands:
             name: Revert migrations
             when: on_fail
             command: |
-              SUCCESS=`curl -H "token: bc:c0:4a:33:15:8c:7f:e3:e0:79:3b:8d:bb:84:15:a1" --request GET https://kvdb.io/2797DDVfQqUVMSzD5WALik4Y/values/DB_MIGRATION_STATUS_${CIRCLE_WORKFLOW_ID:0:7}` 
+              SUCCESS=`curl -H "token: bc:c0:4a:33:15:8c:7f:e3:e0:79:3b:8d:bb:84:15:a1" --request GET https://kvdb.io/2797DDVfQqUVMSzD5WALik4Y/values/MIGRATION_STATUS_${CIRCLE_WORKFLOW_ID:0:7}` 
               echo $SUCCESS
               if [[ $SUCCESS == 1 ]];
               then
@@ -504,7 +504,8 @@ jobs:
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            export ANSIBLE_HOST_KEY_CHECKING=False
+            ansible-playbook -i .circleci/ansible/inventory.txt deploy-backend.yml
       - slack/notify:
           channel: udapeople
           event: fail
