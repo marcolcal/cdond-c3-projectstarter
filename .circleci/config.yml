@@ -366,6 +366,66 @@ jobs:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations    
 
+
+
+  deploy-frontend:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      - restore_cache:
+          key: frontend-build
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            yum -y install tar gzip git 
+      - 
+      - run:
+          name: Get backend url
+          command: |
+            # your code here
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - run:
+          name: Deploy frontend objects
+          command: |
+            # your code here
+            sudo apt-get update
+            sudo apt install python3 -y   #removed package npm
+            sudo apt-get install unzip  -y
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      # Here's where you will add some code to rollback on failure   
+      - run:
+          name: get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --region us-east-1 --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[].Instances[*].PublicIpAddress" --output text --region us-east-1)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env            
+      - run: 
+          name: deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+    # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations    
+
+
+
+
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
@@ -374,7 +434,7 @@ jobs:
       # Checkout code from git
       - checkout
       - restore_cache:
-          key: frontend-build
+          key: backend-build
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
