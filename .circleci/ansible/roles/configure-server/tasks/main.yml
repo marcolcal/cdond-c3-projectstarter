@@ -1,7 +1,7 @@
 ---
 - name: "install python for Ansible."
   # Your code here
-  raw: test -e /usr/bin/python
+  raw: test -e /usr/bin/python3
   changed_when: false
   failed_when: false
   register: check_python

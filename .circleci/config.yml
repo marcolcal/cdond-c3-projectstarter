@@ -249,10 +249,9 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            # Your code here
+            # Your code here  Remove this filter fromm the code below #--filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> .circleci/ansible/inventory.txt --region us-east-1
               cat .circleci/ansible/inventory.txt
             #exit 1
@@ -266,7 +265,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure   
-
+      - revert-migrations  
 
   configure-infrastructure:
     docker:
@@ -299,16 +298,8 @@ jobs:
           name: Configure server
           command: |
             # Your code here
-            environment:
-            - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
-            - TYPEORM_ENTITIES: "{{ lookup('env', 'TYPEORM_ENTITIES')}}"
-            - TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST')}}"
-            - TYPEORM_PORT: 5432
-            - TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME')}}"
-            - TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD')}}"
-            - TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE')}}"
-            - TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
-            - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}
+            cd .cicleci/ansible
+            ansible-playbook -inventory configure-server.yml
             #exit 1
       - slack/notify:
           channel: udapeople
@@ -339,6 +330,10 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
       - run:
           name: Run migrations
           no_output_timeout: 20m
@@ -354,7 +349,7 @@ jobs:
           event: fail
           template: basic_fail_1
       - run:
-          name: Send migration results to memstash
+          name: Send migration results to kvdb
           command: |
             # Your code here
             if grep -q "has been executed successfully." backend/migrations_dump.txt
@@ -371,8 +366,8 @@ jobs:
           event: fail
           template: basic_fail_1
     # Here's where you will add some code to rollback on failure  
-      - destroy-environment
-      - revert-migrations    
+      #- destroy-environment
+      #- revert-migrations    
 
 workflows:
   test-and-deploy:
