@@ -37,7 +37,7 @@ commands:
             name: Revert migrations
             when: on_fail
             command: |
-              SUCCESS=`curl -H "token: bc:c0:4a:33:15:8c:7f:e3:e0:79:3b:8d:bb:84:15:a1" --request GET https://kvdb.io/2797DDVfQqUVMSzD5WALik4Y/values/MIGRATION_STATUS_${CIRCLE_WORKFLOW_ID:0:7}` 
+              SUCCESS=`curl --insecure https://kvdb.io/2797DDVfQqUVMSzD5WALik4Y/values/migration_${CIRCLE_WORKFLOW_ID:0:7}'
               echo $SUCCESS
               if [[ $SUCCESS == 1 ]];
               then
@@ -516,6 +516,59 @@ jobs:
       - destroy-environment:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}" 
 
+  smoke-test:
+    docker:
+      # Lightweight Docker image 
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            # Your code here
+            apk add --update ansible openssh-client tar gzip curl ansible npm nodejs
+            pip install awscli
+            #exit 1
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --region us-east-1 --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[].Instances[*].PublicIpAddress" --output text --region us-east-1)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+                return 0
+            else
+                return 1
+            fi
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+     - run:
+          name: frontend smoke testing
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+              echo ${URL} 
+              if curl -s ${URL} | grep "Welcome"
+              then
+                  # Change this to 0 after the job fails
+                return 1
+              else
+                return 1
+              fi
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      # Here's where you will add some code to rollback on failure  
+      - revert-migrations:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
 workflows:
   test-and-deploy:
     jobs:
