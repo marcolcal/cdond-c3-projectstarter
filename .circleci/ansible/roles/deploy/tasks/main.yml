@@ -1,6 +1,6 @@
 ---
 - name: xtract the zipped artifact into the EC2 instance
-  ansible.builtin.unarchive:
+  unarchive:
     src: ~/udacity-project/projects/cdond-c3-projectstarter/artifact.tar.gz
     dest: /home/ubuntu
 

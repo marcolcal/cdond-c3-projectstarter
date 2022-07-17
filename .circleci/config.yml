@@ -383,9 +383,9 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
-            apt install tar 
-            apt install gzip 
-            apt install git 
+            sudo apt install tar 
+            sudo apt install gzip 
+            sudo apt install git 
       - slack/notify:
           channel: udapeople
           event: fail
