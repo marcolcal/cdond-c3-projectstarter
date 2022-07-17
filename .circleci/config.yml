@@ -606,8 +606,9 @@ workflows:
       - deploy-backend:
           requires: [run-migrations]
           context: slack-context
-      #- smoke-test:
-        #  requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+          context: slack-context
       #- cloudfront-update:
          # requires: [smoke-test]
       #- cleanup:
