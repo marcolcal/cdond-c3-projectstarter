@@ -362,8 +362,57 @@ jobs:
           event: fail
           template: basic_fail_1
     # Here's where you will add some code to rollback on failure  
-      #- destroy-environment
-      #- revert-migrations    
+      - destroy-environment:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations    
+
+  deploy-backend:
+    docker:
+      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      - checkout
+      - restore_cache:
+          key: frontend-build
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints:
+            - "9a:7c:96:eb:b8:6e:60:95:bb:de:99:9e:3a:20:1d:d4"
+      # attach workspace
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            # Your code here
+            apk add --update ansible openssh-client tar gzip curl ansible
+            pip install awscli
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1     
+      - run:
+          name: Deploy backend
+          command: |
+            # your code here
+            cd backend
+            npm i
+            cd ..
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations    
 
 workflows:
   test-and-deploy:
@@ -393,8 +442,9 @@ workflows:
       - run-migrations:
           requires: [configure-infrastructure]
           context: slack-context
-      #- deploy-frontend:
-        #  requires: [run-migrations]
+      - deploy-frontend:
+          requires: [run-migrations]
+          context: slack-context
       #- deploy-backend:
         #  requires: [run-migrations]
       #- smoke-test:

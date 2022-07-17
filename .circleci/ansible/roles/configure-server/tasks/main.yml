@@ -1,25 +1,4 @@
 ---
-- name: "install python for Ansible."
-  # Your code here
-  raw: test -e /usr/bin/python3
-  changed_when: false
-  failed_when: false
-  register: check_python
+- include: configure-python.yml
+- include: install-dependencies.yml
 
-- name: Install Python
-  raw: apt -y update && apt install -y python3
-  when: check_python.rc != 0
-
-
-- name: Installing NPM
-  apt:
-    name: "{{ item }}"
-    state: latest
-  loop: ['npm', 'nodejs']
-
-- name: Installing pm2
-  npm: 
-    name: pm2
-    state: present
-    global: true
-    production: true 
