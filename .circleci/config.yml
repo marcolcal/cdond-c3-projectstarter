@@ -383,7 +383,9 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
-            yum -y install tar gzip git 
+            apt install tar 
+            apt install gzip 
+            apt install git 
       - slack/notify:
           channel: udapeople
           event: fail
@@ -447,7 +449,7 @@ jobs:
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
-      - image: python:3.7-alpine3.11
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - checkout
@@ -464,9 +466,15 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
-            # Your code here
-            apk add --update ansible openssh-client tar gzip curl ansible
-            pip install awscli
+            sudo apt-get update
+            sudo apt install python3 -y   #removed package npm
+            sudo apt install ansible -y
+            sudo apt install tar -y
+            sudo apt install git -y
+            sudo apt-get install unzip  -y
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - slack/notify:
           channel: udapeople
           event: fail
