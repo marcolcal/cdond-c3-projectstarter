@@ -223,10 +223,10 @@ jobs:
           command: |
             # Use the workflow id to mark your CloudFormation stacks so that you can reference them later on (ex: rollback). 
             aws cloudformation deploy \
-                --template-file .circleci/files/backend.yml \
-                --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
-                --tags project=udapeople --region us-east-1
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople --region us-east-1
       - slack/notify:
           channel: udapeople
           event: fail
@@ -463,19 +463,6 @@ jobs:
           channel: udapeople
           event: fail
           template: basic_fail_1   
-#      - run:
-#          name: Ensure back-end infrastructure exists
-#          command: |
-#            aws cloudformation deploy \
-#              --template-file .circleci/files/backend.yml \
-#              --tags Name=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
-#              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" --region us-east-1 \
-#              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-#              --output text >> .circleci/ansible/inventory.txt --region us-east-1
-#      - slack/notify:
-#          channel: udapeople
-#          event: fail
-#          template: basic_fail_1
       - run:
           name: Deploy backend
           command: |
