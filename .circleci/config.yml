@@ -47,7 +47,7 @@ commands:
               fi 
 
 
-#########################JOBS############################################
+#########################JOBS################################################
 jobs:
   build-frontend:
       docker:
@@ -72,7 +72,7 @@ jobs:
         - save_cache:
             key: frontend-build
             paths: [frontend/node_modules]
-#########################BUILDING-BACKEND############################################
+#########################BUILDING-BACKEND####################################
   build-backend:
       docker:
         - image: circleci/node:13.8.0
@@ -114,7 +114,7 @@ jobs:
               - package.json
               - backend.tar.gz 
 
-#########################TESTING-FRONTEND############################################
+#########################TESTING-FRONTEND####################################
   test-frontend:
       docker:
         # Docker image here
@@ -136,7 +136,7 @@ jobs:
             channel: udapeople
             event: fail
             template: basic_fail_1
-#########################TESTING-BACKEND############################################
+#########################TESTING-BACKEND#####################################
   test-backend:
       docker:
         # Docker image here
@@ -159,7 +159,7 @@ jobs:
             event: fail
             template: basic_fail_1
 
-########################SCANNING-FRONT-END##########################################
+########################SCANNING-FRONT-END###################################
   scan-frontend:
       docker:
         # Docker image here
@@ -181,8 +181,8 @@ jobs:
             channel: udapeople
             event: fail
             template: basic_fail_1
-#######################################SCANNING-BACKEND##########################
-#Adding a space
+#######################################SCANNING-BACKEND######################
+
   scan-backend:
     docker:
       # Docker image here
@@ -204,7 +204,7 @@ jobs:
           channel: udapeople
           event: fail
           template: basic_fail_1
-################DEPLOY-INFRASTRUCTURE###################################
+################DEPLOY-INFRASTRUCTURE########################################
   deploy-infrastructure:
     docker:
       # Docker image here that supports AWS CLI
@@ -262,7 +262,7 @@ jobs:
       # Here's where you will add some code to rollback on failure   
       - destroy-environment:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
-######################CONFIGURE-INFRASTRUCTURE################################
+######################CONFIGURE-INFRASTRUCTURE###############################
   configure-infrastructure:
     docker:
       # Docker image here that supports Ansible
@@ -304,7 +304,7 @@ jobs:
       # Here's where you will add some code to rollback on failure     
       - destroy-environment:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
-#########################RUNS-MIGRATIONS############################################
+#########################RUNS-MIGRATIONS#####################################
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
@@ -361,7 +361,7 @@ jobs:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations    
 
-#########################DEPLOY-FRONTEND############################################
+#########################DEPLOY-FRONTEND#####################################
   deploy-frontend:
     docker:
       # Docker image here that supports AWS CLI
@@ -428,7 +428,7 @@ jobs:
       - destroy-environment:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations    
-#########################DEPLOY-BACKEND############################################
+#########################DEPLOY-BACKEND######################################
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
@@ -485,7 +485,7 @@ jobs:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}" 
-#########################SMOKE-TEST############################################
+#########################SMOKE-TEST##########################################
   smoke-test:
     docker:
       # Lightweight Docker image 
@@ -540,7 +540,7 @@ jobs:
       - revert-migrations:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
 
-#########################WORKFLOWS############################################
+#########################WORKFLOWS###########################################
 workflows:
   test-and-deploy:
     jobs:
