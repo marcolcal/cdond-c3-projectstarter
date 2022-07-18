@@ -1,7 +1,7 @@
 ---
 - name: xtract the zipped artifact into the EC2 instance
   unarchive:
-    src: ~/udacity-project/projects/cdond-c3-projectstarter/artifact.tar.gz
+    src: ../../../../artifact.tar.gz
     dest: /home/ubuntu
 
 - name: Intall the appp
