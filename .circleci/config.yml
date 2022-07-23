@@ -111,7 +111,7 @@ jobs:
             event: fail
             template: basic_fail_1
 
-            
+
 workflows:
   test-and-deploy:
     jobs:
@@ -119,12 +119,12 @@ workflows:
           context: slack-context
       - build-backend:
           context: slack-context
-      #- test-frontend:
-      #    requires: [build-frontend]
-      #    context: slack-context
-      #- test-backend:
-      #    requires: [build-backend]
-      #    context: slack-context
+      - test-frontend:
+          requires: [build-frontend]
+          context: slack-context
+      - test-backend:
+          requires: [build-backend]
+          context: slack-context
       #- scan-backend:
       #    requires: [build-backend]
       #    context: slack-context
