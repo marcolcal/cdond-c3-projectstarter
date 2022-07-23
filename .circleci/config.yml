@@ -111,6 +111,51 @@ jobs:
             event: fail
             template: basic_fail_1
 
+########################SCANNING-FRONT-END###################################
+  scan-frontend:
+      docker:
+        # Docker image here
+        - image: circleci/node:13.8.0
+      steps:
+        # Checkout code from git
+        - checkout
+        # Restore from cache
+        - restore_cache:
+            keys: [frontend-build]
+        # Your job code here
+        - run:
+            name: scanning frontend
+            command: |
+              cd frontend
+              npm i
+              npm audit fix --audit-level=critical --force
+        - slack/notify:
+            channel: udapeople
+            event: fail
+            template: basic_fail_1
+#######################################SCANNING-BACKEND######################
+
+  scan-backend:
+    docker:
+      # Docker image here
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout 
+      # Restore from cache
+      - restore_cache:
+          keys: [backend-build]
+      # Your job code here
+      - run:
+          name: scanning backend
+          command: |
+            cd backend
+            npm i
+            npm audit fix --audit-level=critical --force
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
 
 workflows:
   test-and-deploy:
@@ -125,12 +170,12 @@ workflows:
       - test-backend:
           requires: [build-backend]
           context: slack-context
-      #- scan-backend:
-      #    requires: [build-backend]
-      #    context: slack-context
-      #- scan-frontend:
-      #    requires: [build-frontend]
-      #    context: slack-context
+      - scan-backend:
+          requires: [build-backend]
+          context: slack-context
+      - scan-frontend:
+          requires: [build-frontend]
+          context: slack-context
       #- deploy-infrastructure:
       #    requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #    context: slack-context
