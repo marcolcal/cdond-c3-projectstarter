@@ -293,6 +293,7 @@ jobs:
           name: Configure server
           command: |
             # Your code here
+            export ANSIBLE_HOST_KEY_CHECKING=False
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       - slack/notify:
