@@ -274,8 +274,7 @@ jobs:
           key: frontend-build
       # Add ssh keys with fingerprint
       - add_ssh_keys:
-          fingerprints:
-            - "a1:6f:c8:51:94:d4:0c:fd:45:00:67:75:29:c4:cd:2f"
+          fingerprints: ["a1:6f:c8:51:94:d4:0c:fd:45:00:67:75:29:c4:cd:2f"]
       # attach workspace
       - attach_workspace:
           at: ~/
@@ -283,7 +282,7 @@ jobs:
           name: Install dependencies
           command: |
             # Your code here
-            apk add --update ansible openssh-client tar gzip curl 
+            apk add --update ansible openssh-client tar gzip curl pip
             pip install awscli
             #exit 1
       - slack/notify:
