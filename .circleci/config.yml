@@ -222,9 +222,10 @@ jobs:
             # Use the workflow id to mark your CloudFormation stacks so that you can reference them later on (ex: rollback). 
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
+              --tags project=udapeople\
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
-              --tags Name=backend-${CIRCLE_WORKFLOW_ID:0:7} --region us-east-1
+              --region us-east-1
       - slack/notify:
           channel: udapeople
           event: fail
@@ -234,9 +235,10 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
+              --tags project=udapeople\
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-              --tags Name=frontend-${CIRCLE_WORKFLOW_ID:0:7} --region us-east-1
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"\
+              --region us-east-1
       - slack/notify:
           channel: udapeople
           event: fail
