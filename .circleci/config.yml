@@ -282,9 +282,9 @@ jobs:
           name: Install dependencies
           command: |
             # Your code here
-            apk add --update ansible openssh-client tar gzip curl pip
-            pip install awscli
-            #exit 1
+            apk add --update ansible openssh-client tar gzip curl
+            apk update pip3
+            pip3 install awscli
       - slack/notify:
           channel: udapeople
           event: fail
@@ -295,7 +295,6 @@ jobs:
             # Your code here
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-            #exit 1
       - slack/notify:
           channel: udapeople
           event: fail
