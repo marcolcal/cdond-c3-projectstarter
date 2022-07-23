@@ -1,7 +1,52 @@
 version: '2.1'
 orbs:
   slack: circleci/slack@4.1
+#########################COMMANDS############################################
+commands:
+  destroy-environment:
+    description: destroy backend & frontend
+    parameters:
+      workflowid:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
+    steps:
+      - run:
+          name: delete S3 content
+          when: on_fail
+          command: |
+            aws s3 rm s3://udapeople-<<parameters.workflowid>> --recursive
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflowid: << parameters.workflowid >>
 
+  revert-migrations:
+      description: Revert.
+      parameters:
+        workflowid:
+          type: string
+          default: ${CIRCLE_WORKFLOW_ID:0:7}
+      steps:
+        - restore_cache:
+            key: backend-build
+        - run:
+            name: Revert migrations
+            when: on_fail
+            command: |
+              SUCCESS=`curl --insecure https://kvdb.io/2797DDVfQqUVMSzD5WALik4Y/values/migration_${CIRCLE_WORKFLOW_ID:0:7}'
+              echo $SUCCESS
+              if [[ $SUCCESS == 1 ]];
+              then
+                cd ~/project/backend
+                npm install
+                npm run migrations:revert 
+              fi 
+
+#####################JOBS###########################################################
 jobs:
   build-frontend:
       docker:
@@ -157,6 +202,65 @@ jobs:
           event: fail
           template: basic_fail_1
 
+################DEPLOY-INFRASTRUCTURE########################################
+  deploy-infrastructure:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: installing packages
+          command: |
+            yum -y install tar gzip git
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            # Use the workflow id to mark your CloudFormation stacks so that you can reference them later on (ex: rollback). 
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople --region us-east-1
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+              --tags project=udapeople --region us-east-1
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            # Your code here  Remove this filter fromm the code below #--filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text >> .circleci/ansible/inventory.txt --region us-east-1
+              cat .circleci/ansible/inventory.txt
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure   
+      - destroy-environment:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
+
 workflows:
   test-and-deploy:
     jobs:
@@ -176,9 +280,9 @@ workflows:
       - scan-frontend:
           requires: [build-frontend]
           context: slack-context
-      #- deploy-infrastructure:
-      #    requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #    context: slack-context
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          context: slack-context
       #- configure-infrastructure:
       #    requires: [deploy-infrastructure]
       #    context: slack-context

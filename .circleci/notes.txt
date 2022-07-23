@@ -50,3 +50,29 @@ deploy key
 bc:c0:4a:33:15:8c:7f:e3:e0:79:3b:8d:bb:84:15:a1
 
 
+######################amulkey81######################
+Database connection details
+DB instance identifier
+->database-1
+Master username
+->postgres
+Master password
+->Springtime$2022!!
+Endpoint
+->database-1.ct4sn45khyvr.us-east-1.rds.amazonaws.com
+port
+->5432
+
+database-2.ct4sn45khyvr.us-east-1.rds.amazonaws.com
+DB name
+rds_postgresql_10minTutorial
+DB instance ID
+database-2
+Master username
+postgres
+
+Random string
+kk1j287dhjppmz437
+
+bucketname
+udapeople-kk1j287dhjppmz437marcolcal
