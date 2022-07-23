@@ -65,7 +65,53 @@ jobs:
             paths:
               - package.json
               - backend.tar.gz 
+#########################TESTING-FRONTEND####################################
+  test-frontend:
+      docker:
+        # Docker image here
+        - image: circleci/node:13.8.0
+      steps:
+        # Checkout code from git
+        - checkout
+        # Restore from cache
+        - restore_cache:
+            keys: [frontend-build]
+        # Your job code here
+        - run:
+            name: Frontend unit test
+            command: |
+              cd frontend
+              sudo npm i
+              npm run test
+        - slack/notify:
+            channel: udapeople
+            event: fail
+            template: basic_fail_1
 
+#########################TESTING-BACKEND#####################################
+  test-backend:
+      docker:
+        # Docker image here
+        - image: circleci/node:13.8.0
+      steps:
+        # Checkout code from git
+        - checkout
+        # Restore from cache
+        - restore_cache:
+            keys: [backend-build]
+        # Your job code here
+        - run:
+            name: test backend
+            command: |
+              cd backend
+              npm i
+              npm run test
+        - slack/notify:
+            channel: udapeople
+            event: fail
+            template: basic_fail_1
+
+            
 workflows:
   test-and-deploy:
     jobs:
