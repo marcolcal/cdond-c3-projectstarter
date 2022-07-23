@@ -62,7 +62,7 @@ jobs:
               cd frontend
               npm install
               npm run build
-              npm audit fix --audit-level=critical --force
+              #npm audit fix --audit-level=critical --force
         - slack/notify:
             channel: udapeople
             event: fail
