@@ -76,3 +76,6 @@ kk1j287dhjppmz437
 
 bucketname
 udapeople-kk1j287dhjppmz437marcolcal
+
+figerprint-aws account
+a1:6f:c8:51:94:d4:0c:fd:45:00:67:75:29:c4:cd:2f
