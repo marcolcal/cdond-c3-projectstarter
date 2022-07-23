@@ -262,7 +262,227 @@ jobs:
       # Here's where you will add some code to rollback on failure   
       - destroy-environment:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
-
+######################CONFIGURE-INFRASTRUCTURE###############################
+  configure-infrastructure:
+    docker:
+      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      - checkout
+      - restore_cache:
+          key: frontend-build
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints:
+            - "a1:6f:c8:51:94:d4:0c:fd:45:00:67:75:29:c4:cd:2f"
+      # attach workspace
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            # Your code here
+            apk add --update ansible openssh-client tar gzip curl 
+            pip install awscli
+            #exit 1
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      - run:
+          name: Configure server
+          command: |
+            # Your code here
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+            #exit 1
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      # Here's where you will add some code to rollback on failure     
+      - destroy-environment:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
+#########################RUNS-MIGRATIONS#####################################
+  run-migrations:
+    docker:
+      # Docker image here that supports NodeJS
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      - restore_cache:
+          key: backend-build
+      - attach_workspace:
+          at: ~/ 
+      - run:
+          name: Install AWS CLI dependencies
+          # working_directory: /tmp
+          command: |
+            sudo apt-get update
+            sudo apt install python3 -y 
+            sudo apt-get install unzip  -y
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      - run:
+          name: Run migrations
+          no_output_timeout: 20m
+          command: |
+            # Your code here
+            cd backend
+            npm install
+            npm run build
+            # Run and save the migration output
+            npm run migrations > migrations_dump.txt
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      - run:
+          name: Send migration results to kvdb
+          command: |
+            # Your code here
+            if grep -q "has been executed successfully." backend/migrations_dump.txt
+            then
+              curl  https://kvdb.io/2797DDVfQqUVMSzD5WALik4Y/values/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+            fi
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+    # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations    
+#########################DEPLOY-FRONTEND#####################################
+  deploy-frontend:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      - restore_cache:
+          key: frontend-build
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            sudo apt install tar -y
+            sudo apt install gzip -y
+            sudo apt install git -y
+            sudo apt install ansible -y
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1 
+      - run:
+          name: Installing the AWS CLI
+          command: |
+            # your code here
+            sudo apt-get update
+            sudo apt install python3 -y 
+            sudo apt-get install unzip  -y
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1 
+      - run:
+          name: get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[].Instances[*].PublicIpAddress" --output text --region us-east-1)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env    
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1         
+      - run: 
+          name: deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1  
+    # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations 
+#########################DEPLOY-BACKEND######################################
+  deploy-backend:
+    docker:
+      # Docker image here that supports Ansible
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      - restore_cache:
+          key: backend-build
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints:
+            - "a1:6f:c8:51:94:d4:0c:fd:45:00:67:75:29:c4:cd:2f"
+      # attach workspace
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            sudo apt-get update
+            sudo apt install python3 -y 
+            sudo apt install ansible -y
+            sudo apt install tar -y
+            sudo apt install git -y
+            sudo apt-get install unzip  -y
+            sudo apt-get install curl -y
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1   
+      - run:
+          name: Deploy backend
+          command: |
+            # your code here
+            cd backend
+            npm i
+            cd ..
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            export ANSIBLE_HOST_KEY_CHECKING=False
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      # Here's where you will add some code to rollback on failure  
+      - revert-migrations:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"   
 workflows:
   test-and-deploy:
     jobs:
@@ -285,18 +505,18 @@ workflows:
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           context: slack-context
-      #- configure-infrastructure:
-      #    requires: [deploy-infrastructure]
-      #    context: slack-context
-      #- run-migrations:
-      #    requires: [configure-infrastructure]
-      #    context: slack-context
-      #- deploy-frontend:
-      #    requires: [run-migrations]
-      #    context: slack-context
-      #- deploy-backend:
-      #    requires: [run-migrations]
-      #    context: slack-context
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+          context: slack-context
+      - run-migrations:
+          requires: [configure-infrastructure]
+          context: slack-context
+      - deploy-frontend:
+          requires: [run-migrations]
+          context: slack-context
+      - deploy-backend:
+          requires: [run-migrations]
+          context: slack-context
       #- smoke-test:
       #    requires: [deploy-backend, deploy-frontend]
       #    context: slack-context
