@@ -352,7 +352,9 @@ jobs:
           command: |
             # Your code here
             cd backend
+            sudo npm cache clean --force 
             rm -rf ./node_modules
+            rm -rf package-lock.json
             npm install
             #sudo npm cache clean --force 
             npm run build
