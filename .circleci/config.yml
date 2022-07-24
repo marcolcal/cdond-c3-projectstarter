@@ -322,8 +322,8 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
-      #- image: circleci/node:13.8.0
-      - image: cimg/base:2021.04
+      - image: circleci/node:13.8.0
+      #- image: cimg/base:2021.04
     steps:
       # Checkout code from git
       - checkout
@@ -346,15 +346,15 @@ jobs:
           channel: udapeople
           event: fail
           template: basic_fail_1
-      - run:
-          name: Install npm nodejs
-          # working_directory: /tmp
-          command: |
-            sudo apt-get install npm
-      - slack/notify:
-          channel: udapeople
-          event: fail
-          template: basic_fail_1
+      #- run:
+      #    name: Install npm nodejs
+      #    # working_directory: /tmp
+      #    command: |
+      #      sudo apt-get install npm nodejs
+      #- slack/notify:
+      #    channel: udapeople
+      #    event: fail
+      #    template: basic_fail_1
       - run:
           name: Run migrations
           no_output_timeout: 20m
