@@ -352,12 +352,13 @@ jobs:
           command: |
             # Your code here
             cd backend
-            sudo npm install
+            rm -rf ./node_modules
+            npm install
             #sudo npm cache clean --force 
-            sudo npm run build
-            sudo npm audit fix --force
+            npm run build
+            #sudo npm audit fix --force
             # Run and save the migration output
-            sudo npm run migrations > migrations_dump.txt
+            npm run migrations > migrations_dump.txt
       - slack/notify:
           channel: udapeople
           event: fail
