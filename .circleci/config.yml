@@ -354,8 +354,8 @@ jobs:
             cd backend
             sudo npm install
             #sudo npm cache clean --force 
-            #sudo npm run build
-            #sudo npm audit fix --force
+            sudo npm run build
+            sudo npm audit fix --force
             # Run and save the migration output
             sudo npm run migrations > migrations_dump.txt
       - slack/notify:
