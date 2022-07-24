@@ -48,6 +48,7 @@ commands:
 
 #####################JOBS###########################################################
 jobs:
+#########################BUILD-BACKEND####################################
   build-frontend:
       docker:
         - image: circleci/node:13.8.0
@@ -70,7 +71,7 @@ jobs:
         - save_cache:
             key: frontend-build
             paths: [frontend/node_modules]
-
+#########################BUILD-BACKEND####################################
   build-backend:
       docker:
         - image: circleci/node:13.8.0
@@ -293,6 +294,20 @@ jobs:
           name: Configure server
           command: |
             # Your code here
+            cd backend
+            touch ".env"
+            echo ENVIRONMENT=production > ".env"
+            echo TYPEORM_CONNECTION=postgres >> ".env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> ".env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> ".env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
+            echo NODE_ENV=production >> ".env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
+            cd ..            
             export ANSIBLE_HOST_KEY_CHECKING=False
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
@@ -313,23 +328,23 @@ jobs:
       - checkout
       - restore_cache:
           key: backend-build
-      #- attach_workspace:
-      #    at: ~/ 
-      #- run:
-      #    name: Install AWS CLI dependencies
-      #    # working_directory: /tmp
-      #    command: |
-      #      sudo apt-get update
-      #      sudo apt-get install python3 -y 
-      #      sudo apt-get install python3-pip -y
-      #      sudo apt-get install unzip  -y
-      #      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-      #      unzip awscliv2.zip
-      #      sudo ./aws/install
-      #- slack/notify:
-      #    channel: udapeople
-      #    event: fail
-      #    template: basic_fail_1
+      - attach_workspace:
+          at: ~/ 
+      - run:
+          name: Install AWS CLI dependencies
+          # working_directory: /tmp
+          command: |
+            sudo apt-get update
+            sudo apt-get install python3 -y 
+            sudo apt-get install python3-pip -y
+            sudo apt-get install unzip  -y
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
       - run:
           name: Run migrations
           no_output_timeout: 20m
