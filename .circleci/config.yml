@@ -313,23 +313,23 @@ jobs:
       - checkout
       - restore_cache:
           key: backend-build
-      - attach_workspace:
-          at: ~/ 
-      - run:
-          name: Install AWS CLI dependencies
-          # working_directory: /tmp
-          command: |
-            sudo apt-get update
-            sudo apt-get install python3 -y 
-            sudo apt-get install python3-pip -y
-            sudo apt-get install unzip  -y
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - slack/notify:
-          channel: udapeople
-          event: fail
-          template: basic_fail_1
+      #- attach_workspace:
+      #    at: ~/ 
+      #- run:
+      #    name: Install AWS CLI dependencies
+      #    # working_directory: /tmp
+      #    command: |
+      #      sudo apt-get update
+      #      sudo apt-get install python3 -y 
+      #      sudo apt-get install python3-pip -y
+      #      sudo apt-get install unzip  -y
+      #      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #      unzip awscliv2.zip
+      #      sudo ./aws/install
+      #- slack/notify:
+      #    channel: udapeople
+      #    event: fail
+      #    template: basic_fail_1
       - run:
           name: Run migrations
           no_output_timeout: 20m
@@ -337,8 +337,8 @@ jobs:
             # Your code here
             cd backend
             npm install
-            npm run build
-            npm audit fix --force
+            #npm run build
+            #npm audit fix --force
             # Run and save the migration output
             npm run migrations > migrations_dump.txt
       - slack/notify:
