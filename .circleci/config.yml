@@ -14,7 +14,7 @@ commands:
           name: delete S3 content
           when: on_fail
           command: |
-            aws s3 rm s3://udapeople-<<parameters.workflowid>> --recursive
+            aws s3 rm s3://udapeople-<<parameters.workflowid>> --recursive --region us-east-1
       - run:
           name: Destroy environments
           when: on_fail
@@ -322,7 +322,8 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
-      - image: circleci/node:13.8.0
+      #- image: circleci/node:13.8.0
+      - image: cimg/node:18.4.0
     steps:
       # Checkout code from git
       - checkout
