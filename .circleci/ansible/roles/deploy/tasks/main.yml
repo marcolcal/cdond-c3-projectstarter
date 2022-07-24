@@ -1,4 +1,9 @@
 ---
+- name: Upgrade all packages to the latest version
+  apt:
+    name: "*"
+    state: latest
+    
 - name: "update apt packages."
   become: yes
   apt:
