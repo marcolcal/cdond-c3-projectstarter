@@ -531,7 +531,7 @@ jobs:
           name: Install dependencies
           command: |
              apk add --update nodejs npm curl
-             apk add --update --no-chache pip3 python3
+             apk add --update --no-cache pip3 python3
              pip3 install awscli   
       - slack/notify:
           channel: udapeople
