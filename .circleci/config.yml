@@ -530,9 +530,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-             apk add --update nodejs npm curl
-             apk add --update --no-cache pip3 python3
-             pip3 install awscli   
+            pip install awscli
+            apk add --update curl nodejs npm  
       - slack/notify:
           channel: udapeople
           event: fail
