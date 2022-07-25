@@ -37,7 +37,7 @@ commands:
             name: Revert migrations
             when: on_fail
             command: |
-              SUCCESS=`curl --insecure https://kvdb.io/97DDVfQqUVMSzD5WALik4Y/values/migration_${CIRCLE_WORKFLOW_ID:0:7}'
+              SUCCESS=$(curl --insecure  https://kvdb.io/NZEm21xnyfcwt1zYtDzeJr/migration_<< parameters.workflowid >>)
               echo $SUCCESS
               if [[ $SUCCESS == 1 ]];
               then
@@ -549,6 +549,10 @@ jobs:
             else
               return 1
             fi
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
       - run:
           name: Frontend smoke test.
           command: |
@@ -561,8 +565,14 @@ jobs:
             else
               return 1
             fi
-      - destroy-environment
-      - revert-migrations 
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      - destroy-environment:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}" 
+      - revert-migrations:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
 workflows:
   test-and-deploy:
     jobs:
