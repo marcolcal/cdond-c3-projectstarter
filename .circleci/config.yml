@@ -490,8 +490,20 @@ jobs:
           command: |
             # your code here
             cd backend
+            echo ENVIROMENT=production > ".env"
+            echo NODE_ENV=production >> ".env"
+            echo TYPEORM_CONNECTION=postgres >> ".env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> ".env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> ".env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
             npm i
             npm run build
+            pwd
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
@@ -511,33 +523,16 @@ jobs:
 
   smoke-test:
     docker:
-      - image: python:3.11-rc-alpine
+      - image: python:3.7-alpine3.11
     steps:
       - run: sleep 60
       - checkout
       - run:
           name: Install dependencies
           command: |
-             apk add --update curl
-             apk update pip3
-             pip3 install awscli
-      - run:
-          name: Configure server
-          command: |
-            # Your code here
-            cd backend
-            touch ".env"
-            echo ENVIRONMENT=production > ".env"
-            echo TYPEORM_CONNECTION=postgres >> ".env"
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> ".env"
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> ".env"
-            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
-            echo NODE_ENV=production >> ".env"
-            echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
-            echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"    
+             apk add --update nodejs npm curl
+             apk add --update --no-chache pip3 python3
+             pip3 install awscli   
       - slack/notify:
           channel: udapeople
           event: fail
@@ -547,9 +542,11 @@ jobs:
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}"\
             --output text)
+            echo "BACKEND_IP=${BACKEND_IP}"
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            echo "API_URL=${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
               return 0
