@@ -41,7 +41,8 @@ commands:
               echo $SUCCESS
               if [[ $SUCCESS == 1 ]];
               then
-                cd ~/project/backend
+                #cd ~/project/backend
+                cd backend
                 npm install
                 npm run migrations:revert 
               fi 
@@ -216,7 +217,7 @@ jobs:
       - run:
           name: installing packages
           command: |
-            yum -y install tar gzip git
+            yum -y install tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -283,7 +284,7 @@ jobs:
           name: Install dependencies
           command: |
             # Your code here
-            apk add --update ansible openssh-client tar gzip curl
+            apk add --update ansible tar gzip curl
             apk update pip3
             pip3 install awscli
       - slack/notify:
@@ -510,7 +511,7 @@ jobs:
 
   smoke-test:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: python:3.11-rc-alpine
     steps:
       - run: sleep 60
       - checkout
@@ -520,6 +521,27 @@ jobs:
              apk add --update curl
              apk update pip3
              pip3 install awscli
+      - run:
+          name: Configure server
+          command: |
+            # Your code here
+            cd backend
+            touch ".env"
+            echo ENVIRONMENT=production > ".env"
+            echo TYPEORM_CONNECTION=postgres >> ".env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> ".env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> ".env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
+            echo NODE_ENV=production >> ".env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"    
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
       - run:
           name: Backend smoke test.
           command: |
@@ -546,7 +568,6 @@ jobs:
             else
               return 1
             fi
-      
       - destroy-environment
       - revert-migrations 
 workflows:

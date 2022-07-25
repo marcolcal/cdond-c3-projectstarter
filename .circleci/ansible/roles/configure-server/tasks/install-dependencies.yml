@@ -16,6 +16,7 @@
   loop: ['npm', 'nodejs']
 
 - name: Installing pm2
+  become: yes
   npm: 
     name: pm2
     state: present
