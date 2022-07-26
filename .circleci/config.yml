@@ -41,8 +41,7 @@ commands:
               echo $SUCCESS
               if [[ $SUCCESS == 1 ]];
               then
-                #cd ~/project/backend
-                cd backend
+                cd ~/project/backend
                 npm install
                 npm run migrations:revert 
               fi 
@@ -520,7 +519,7 @@ jobs:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}" 
       - revert-migrations:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
-
+#########################SMOKE-TEST######################################
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11
@@ -569,10 +568,46 @@ jobs:
           channel: udapeople
           event: fail
           template: basic_fail_1
-      #- destroy-environment:
-      #    workflowid: "${CIRCLE_WORKFLOW_ID:0:7}" 
-      #- revert-migrations:
-      #    workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}" 
+      - revert-migrations:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
+#########################CLOUDFRONT-UPDATE######################################
+  cloudfront-update:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pip install awscli
+            apk add --update curl nodejs npm  
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            # your code here
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name InitialStack \
+              --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople
+      - slack/notify:
+          channel: udapeople
+          event: fail
+          template: basic_fail_1
+      # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}" 
+      - revert-migrations:
+          workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
+          
 workflows:
   test-and-deploy:
     jobs:
@@ -610,7 +645,8 @@ workflows:
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
           context: slack-context
-      #- cloudfront-update:
-         # requires: [smoke-test]
+      - cloudfront-update:
+          requires: [smoke-test]
+          context: slack-context
       #- cleanup:
        #   requires: [cloudfront-update]
