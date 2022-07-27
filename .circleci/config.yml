@@ -598,7 +598,7 @@ jobs:
             --no-paginate --output text)
             echo $OldWorkflowID >> ~/OldWorkflowID.txt
             cat ~/OldWorkflowID.txt
-
+            env
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --tags project=udapeople \
@@ -643,14 +643,6 @@ jobs:
               echo Stack names: "${STACKS[@]}"
               echo OldWorkflowID: "${OldWorkflowID}"
               echo CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
-
-        - slack/notify:
-            channel: udapeople
-            event: fail
-            template: basic_fail_1
-        - run:
-            name: Remove old stacks and files
-            command: |
               if [[ "udapeople-${CIRCLE_WORKFLOW_ID:0:7}" != "udapeople-${OldWorkflowID}" ]]
               then
                 # your code here
