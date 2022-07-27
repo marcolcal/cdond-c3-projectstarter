@@ -617,7 +617,7 @@ jobs:
   cleanup:
       docker:
         # Docker image here that supports AWS CLI
-        - image: python:3.7-alpine3.11
+        - image: python:3.11-rc-alpine
       steps:
         # Checkout code from git
         - checkout
@@ -636,12 +636,14 @@ jobs:
               # your code here
               export OldWorkflowID=$(aws cloudformation \
                 list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-                --no-paginate --output text --region us-east-1 | awk 'BEGIN{FS="-"};{print $2}' )
-              echo OldWorkflowID: "${OldWorkflowID}"
-              echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+                --no-paginate --output text --region us-east-1 | awk 'BEGIN{FS="-"};{print $2}')
+              
               export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text --region us-east-1)
               echo Stack names: "${STACKS[@]}"
+              echo OldWorkflowID: "${OldWorkflowID}"
+              echo CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+
         - slack/notify:
             channel: udapeople
             event: fail
