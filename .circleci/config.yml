@@ -204,7 +204,7 @@ jobs:
           event: fail
           template: basic_fail_1
 
-################DEPLOY-INFRASTRUCTURE########################################
+################DEPLOY-INFRASTRUCTURE###########################################
   deploy-infrastructure:
     docker:
       # Docker image here that supports AWS CLI
