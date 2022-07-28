@@ -646,7 +646,7 @@ jobs:
               then
                 # your code here
                 #aws s3 rm "s3://${OldWorkflowID}" --recursive
-                echo "${OldWorkflowID}""
+                echo "${OldWorkflowID}"
                 echo "${STACKS}-"
                 #aws cloudformation delete-stack --stack-name "${STACKS}"
                 #aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
