@@ -624,8 +624,8 @@ jobs:
         # Checkout code from git
         - checkout
       # attach workspace
-        - attach_workspace:
-            at: ~/
+        #- attach_workspace:
+        #    at: ~/
         - run:
             name: Install dependencies
             command: |
@@ -647,7 +647,7 @@ jobs:
                 # your code here
                 #aws s3 rm "s3://${OldWorkflowID}" --recursive
                 echo "${OldWorkflowID}"
-                echo "${STACKS}-"
+                echo "${STACKS}"
                 #aws cloudformation delete-stack --stack-name "${STACKS}"
                 #aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
               fi
