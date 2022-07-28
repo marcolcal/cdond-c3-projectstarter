@@ -14,7 +14,7 @@ commands:
           name: delete S3 content
           when: on_fail
           command: |
-            echo "Destroying environment: <<parameters.workflow_id>> "
+            echo "Destroying environment: <<parameters.workflowid>> "
             aws s3 rm s3://udapeople-<<parameters.workflowid>> --recursive --region us-east-1
       - run:
           name: Destroy environments
