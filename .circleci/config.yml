@@ -604,7 +604,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --tags project=udapeople \
-              --stack-name "InitialStack-${OldWorkflowID}" \
+              --stack-name "InitialStack${OldWorkflowID}" \
               --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
       - slack/notify:
           channel: udapeople
@@ -645,10 +645,10 @@ jobs:
               if [[ "${OldWorkflowID}" != "${STACKS[@]}" ]] 
               then
                 # your code here
-                aws s3 rm "s3://${OldWorkflowID}" --recursive
-                echo ${OldWorkflowID}
-                echo ${STACKS}-
-                #aws cloudformation delete-stack --stack-name "${STACKS}-"
+                #aws s3 rm "s3://${OldWorkflowID}" --recursive
+                echo "${OldWorkflowID}""
+                echo "${STACKS}-"
+                #aws cloudformation delete-stack --stack-name "${STACKS}"
                 #aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
               fi
         - slack/notify:
