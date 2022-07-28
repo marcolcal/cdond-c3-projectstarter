@@ -14,6 +14,7 @@ commands:
           name: delete S3 content
           when: on_fail
           command: |
+            echo "Destroying environment: <<parameters.workflow_id>> "
             aws s3 rm s3://udapeople-<<parameters.workflowid>> --recursive --region us-east-1
       - run:
           name: Destroy environments
@@ -247,9 +248,10 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            # Your code here  Remove this filter fromm the code below #--filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            # Your code here  Remove this filter fromm the code below #
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> .circleci/ansible/inventory.txt --region us-east-1
               cat .circleci/ansible/inventory.txt
       - slack/notify:
@@ -379,7 +381,7 @@ jobs:
     # Here's where you will add some code to rollback on failure  
       - destroy-environment:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}"
-      #- revert-migrations    
+      - revert-migrations    
 #########################DEPLOY-FRONTEND#####################################
   deploy-frontend:
     docker:
@@ -597,7 +599,7 @@ jobs:
             list-exports --query 'Exports[?Name==`WorkflowID`].Value' \
             --no-paginate --output text)
             echo $OldWorkflowID >> ~/project/OldWorkflowID.txt
-            cat ~/OldWorkflowID.txt
+            cat ~/project/OldWorkflowID.txt
             env
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
@@ -634,9 +636,9 @@ jobs:
             name: Get old stack workflow id
             command: |
               # your code here
-              export OldWorkflowID=$(aws cloudformation \
-                list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-                --no-paginate --output text --region us-east-1 | awk 'BEGIN{FS="-"};{print $2}')
+              #export OldWorkflowID=$(aws cloudformation \
+              #  list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              #  --no-paginate --output text --region us-east-1 | awk 'BEGIN{FS="-"};{print $2}')
               cat ~/project/OldWorkflowID.txt
               OldWorkflowID=${cat ~/project/OldWorkflowID.txt}
               export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
