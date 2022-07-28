@@ -641,8 +641,8 @@ jobs:
                 --no-paginate --output text --region us-east-1 | awk 'BEGIN{FS="-"};{print $2}')
               touch ~/OldWorkflowID.txt
               echo $OldWorkflowID >> ~/OldWorkflowID.txt
-              cat ~/OldWorkflowID.txt
-              OldWorkflowID=${cat ~/OldWorkflowID.txt}
+              #cat ~/OldWorkflowID.txt
+              #OldWorkflowID=${cat ~/OldWorkflowID.txt}
               export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text --region us-east-1)
               echo Stack names: "${STACKS[@]}"
@@ -652,8 +652,9 @@ jobs:
               then
                 # your code here
                 aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-                aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID} --region us-east-1"
-                aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID} --region us-east-1"
+                aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+                aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+                aws cloudformation delete-stack --stack-name "InitialStack-"
               fi
         - slack/notify:
             channel: udapeople
