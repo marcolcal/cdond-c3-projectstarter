@@ -35,3 +35,4 @@
   roles:
     # Your code here
     - { role: configure-server, become: true } 
+    - { role: configure-prometheus-node-exporter, become: true }
