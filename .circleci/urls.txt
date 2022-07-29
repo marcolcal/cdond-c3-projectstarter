@@ -1,0 +1,6 @@
+Github-repo
+https://github.com/marcolcal/cdond-c3-projectstarter
+
+S3bucket
+http://udapeople-662776d.s3-website-us-east-1.amazonaws.com
+

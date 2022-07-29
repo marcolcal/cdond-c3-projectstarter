@@ -158,7 +158,7 @@ jobs:
             event: fail
             template: basic_fail_1
 
-########################SCANNING-FRONT-END###################################
+########################SCANNING-FRONT-END#######################################
   scan-frontend:
       docker:
         # Docker image here
