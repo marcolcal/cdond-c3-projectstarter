@@ -607,10 +607,6 @@ jobs:
           channel: udapeople
           event: fail
           template: basic_fail_1
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - ~/project/OldWorkflowID.txt
       # Here's where you will add some code to rollback on failure  
       - destroy-environment:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}" 
