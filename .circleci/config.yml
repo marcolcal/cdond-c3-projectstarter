@@ -331,8 +331,6 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      #- attach_workspace:
-      #    at: ~/ 
       - run:
           name: Install AWS CLI dependencies
       #    # working_directory: /tmp
@@ -597,19 +595,22 @@ jobs:
             # your code here
             export OldWorkflowID=$(aws cloudformation \
             list-exports --query 'Exports[?Name==`WorkflowID`].Value' \
-            --no-paginate --output text)
+            --no-paginate --output text --region us-east-1)
             echo $OldWorkflowID >> ~/project/OldWorkflowID.txt
             cat ~/project/OldWorkflowID.txt
-            env
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --tags project=udapeople \
-              --stack-name "InitialStack${OldWorkflowID}" \
+              --stack-name InitialStack \
               --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
       - slack/notify:
           channel: udapeople
           event: fail
           template: basic_fail_1
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ~/project/OldWorkflowID.txt
       # Here's where you will add some code to rollback on failure  
       - destroy-environment:
           workflowid: "${CIRCLE_WORKFLOW_ID:0:7}" 
@@ -623,9 +624,8 @@ jobs:
       steps:
         # Checkout code from git
         - checkout
-      # attach workspace
-        #- attach_workspace:
-        #    at: ~/
+        - attach_workspace:
+            at: ~/
         - run:
             name: Install dependencies
             command: |
@@ -640,18 +640,21 @@ jobs:
             name: Get old stack workflow id
             command: |
               echo "Hello"
+              cat ~/project/OldWorkflowID.txt
               # your code here
-              #export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text) 
-              #export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
-              #if [[ "${OldWorkflowID}" != "${STACKS[@]}" ]] 
-              #then
+              OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text --region us-east-1) 
+              STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+              echo OldWorkflowID: "${OldWorkflowID}"
+              echo "CIRCLE_WORKFLOW_ID:" "${CIRCLE_WORKFLOW_ID:0:7}"
+              oldJob=${OldWorkflowID}
+              newJob=${CIRCLE_WORKFLOW_ID:0:7}
+              if [[ "$newJob" != "$oldJob" ]] 
+              then
                 # your code here
-                #aws s3 rm "s3://${OldWorkflowID}" --recursive
-                #echo "${OldWorkflowID}"
-                #echo "${STACKS}"
-                #aws cloudformation delete-stack --stack-name "${STACKS}"
-                #aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-              #fi
+                  aws s3 rm "s3://${OldWorkflowID}" --recursive
+                  aws cloudformation delete-stack --stack-name "${STACKS}"
+                  aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+              fi
         - slack/notify:
             channel: udapeople
             event: fail
