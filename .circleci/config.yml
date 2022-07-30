@@ -337,8 +337,9 @@ jobs:
       #    # working_directory: /tmp
           command: |
             sudo apt-get update
-            sudo apt-get install python3 -y 
+            sudo apt-get install npm python3 -y 
             sudo apt-get install python3-pip -y
+            sudo apt-get install unzip  -y
             sudo pip3 install awscli
       - slack/notify:
           channel: udapeople
@@ -370,10 +371,7 @@ jobs:
           command: |
             cd backend
             npm install
-      - run:
-          name: install other dependencies
-          command: |
-            npm --update install python3 npm  
+            npm run build
       - run:
           name: Run migrations
           no_output_timeout: 20m
